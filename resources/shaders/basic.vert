@@ -2,7 +2,9 @@
 
 layout(location = 0) in vec3 vertex;
 
+uniform mat4 world;
+uniform mat4 camera;
+
 void main() {
-    gl_Position.xyz = vertex;
-    gl_Position.w = 1.0;
+    gl_Position = camera * (world * vec4(vertex, 1.0));
 }

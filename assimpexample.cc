@@ -9,6 +9,13 @@
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+#include <boost/range/irange.hpp>
 
 static GLuint LoadShaders(const char *vertexFilePath, const char *fragFilePath)
 {
@@ -131,31 +138,76 @@ int main()
 
     GLuint programID = LoadShaders("resources/shaders/basic.vert", "resources/shaders/basic.frag");
 
+    // Transforms
+    GLuint worldMatrixID, cameraMatrixID;
+    glm::mat4 world, camera;
+
+    worldMatrixID = glGetUniformLocation(programID, "world");
+    cameraMatrixID = glGetUniformLocation(programID, "camera");
+
+    {
+        glm::mat4 proj = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+        glm::mat4 view = glm::lookAt(glm::vec3(4, 3, 3), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+        glm::mat4 model = glm::mat4(1.0f);
+
+        world = model;
+        camera = proj * view;
+    }
+
     glClearColor(0, 0, 0.3f, 0.0f);
 
     GLuint vertexArrayID;
     glGenVertexArrays(1, &vertexArrayID);
     glBindVertexArray(vertexArrayID);
 
-    std::vector<float> vertices = {
-        -1.0f,-1.0f, 0.0f,
-         1.0f,-1.0f, 0.0f,
-         0.0f, 1.0f, 0.0f,
-    };
+    Assimp::Importer importer;
+
+    const aiScene* scene = importer.ReadFile("resources/meshes/sphere.fbx",
+        aiProcess_CalcTangentSpace      |
+        aiProcess_Triangulate           |
+        aiProcess_JoinIdenticalVertices |
+        aiProcess_SortByPType);
+    if (!scene)
+    {
+        fprintf(stderr, "%s\n", importer.GetErrorString());
+        return 1;
+    }
 
     GLuint vertexBufferID;
-    glGenBuffers(1, &vertexBufferID);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
-
-    std::vector<uint16_t> indices = {
-        0, 1, 2
-    };
-
     GLuint indexBufferID;
-    glGenBuffers(1, &indexBufferID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint16_t) * indices.size(), indices.data(), GL_STATIC_DRAW);
+    GLsizei numIndices = 0;
+    
+    if (scene->HasMeshes())
+    {
+        for (auto mi : boost::irange(0U, scene->mNumMeshes))
+        {
+            auto mesh = scene->mMeshes[mi];
+
+            if (mesh->HasPositions())
+            {
+                glGenBuffers(1, &vertexBufferID);
+                glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(aiVector3D) * mesh->mNumVertices, mesh->mVertices, GL_STATIC_DRAW);
+            }
+            
+            if (mesh->HasFaces())
+            {
+                std::vector<uint16_t> indices;
+
+                for (auto fi : boost::irange(0U, mesh->mNumFaces))
+                {
+                    indices.insert(indices.end(),
+                        mesh->mFaces[fi].mIndices,
+                        mesh->mFaces[fi].mIndices + mesh->mFaces[fi].mNumIndices);
+                    numIndices += mesh->mFaces[fi].mNumIndices;
+                }
+
+                glGenBuffers(1, &indexBufferID);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint16_t) * indices.size(), indices.data(), GL_STATIC_DRAW);
+            }
+        }
+    }
 
     glUseProgram(programID);
     glEnableVertexAttribArray(0);
@@ -167,15 +219,18 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(programID);
+
+        glUniformMatrix4fv(worldMatrixID, 1, GL_FALSE, &world[0][0]);
+        glUniformMatrix4fv(cameraMatrixID, 1, GL_FALSE, &camera[0][0]);
 
         glBindVertexArray(vertexArrayID);
 
         glEnableVertexAttribArray(0);
 
-        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, nullptr);
+        glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, nullptr);
 
         glDisableVertexAttribArray(0);
 
