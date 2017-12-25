@@ -14,6 +14,8 @@ set(GLM_INCLUDE_PATH "" CACHE PATH "")
 set(ASSIMP_INCLUDE_PATH "" CACHE PATH "The directory that contains assimp/*.hpp and assimp/*.h")
 set(ASSIMP_LIBRARY "" CACHE FILEPATH "libassimp.a or assimp.lib")
 
+set(BOOST_INCLUDE_PATH "" CACHE PATH "Boost")
+
 set(HELLO_HEADER_FILES )
 set(HELLO_SOURCE_FILES hello.cc)
 
