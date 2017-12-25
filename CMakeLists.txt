@@ -9,7 +9,10 @@ set(GLFW_LIBRARY "" CACHE FILEPATH "libglfw.a or glfw.lib")
 set(GLEW_INCLUDE_PATH "" CACHE PATH "The directory that contains GL/glew.h")
 set(GLEW_LIBRARY "" CACHE FILEPATH "libglew.a or glew.lib")
 
-set(GLM_INCLUDE_PATH "" )
+set(GLM_INCLUDE_PATH "" CACHE PATH "")
+
+set(ASSIMP_INCLUDE_PATH "" CACHE PATH "The directory that contains assimp/*.hpp and assimp/*.h")
+set(ASSIMP_LIBRARY "" CACHE FILEPATH "libassimp.a or assimp.lib")
 
 set(HELLO_HEADER_FILES )
 set(HELLO_SOURCE_FILES hello.cc)
@@ -41,3 +44,21 @@ target_link_libraries(redtriangle
     ${GLFW_LIBRARY}
     ${GLEW_LIBRARY}
 )
+
+set(ASSIMPEXAMPLE_HEADER_FILES )
+set(ASSIMPEXAMPLE_SOURCE_FILES assimpexample.cc)
+
+add_executable(assimpexample
+    ${ASSIMPEXAMPLE_HEADER_FILES}
+    ${ASSIMPEXAMPLE_SOURCE_FILES}
+)
+target_link_libraries(assimpexample
+    ${OPENGL_LIBRARY}
+    ${GLFW_LIBRARY}
+    ${GLEW_LIBRARY}
+    ${ASSIMP_LIBRARY}
+)
+
+add_custom_command(TARGET assimpexample PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:assimpexample>/resources)
