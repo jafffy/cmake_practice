@@ -14,6 +14,12 @@ set(GLM_INCLUDE_PATH "" CACHE PATH "")
 set(ASSIMP_INCLUDE_PATH "" CACHE PATH "The directory that contains assimp/*.hpp and assimp/*.h")
 set(ASSIMP_LIBRARY "" CACHE FILEPATH "libassimp.a or assimp.lib")
 
+if (WIN32)
+    set(GLFW_DLL_PATH "" CACHE FILEPATH "glfw.dll" )
+    set(GLEW_DLL_PATH "" CACHE FILEPATH "glew.dll" )
+    set(ASSIMP_DLL_PATH "" CACHE FILEPATH "assimp.dll" )
+endif(WIN32)
+
 set(BOOST_INCLUDE_PATH "" CACHE PATH "Boost")
 
 set(HELLO_HEADER_FILES )
@@ -63,6 +69,18 @@ target_link_libraries(assimpexample
     ${ASSIMP_LIBRARY}
 )
 
-add_custom_command(TARGET assimpexample PRE_BUILD
+add_custom_command(TARGET assimpexample POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:assimpexample>/resources)
+
+add_custom_command(TARGET assimpexample POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                       ${GLFW_DLL_PATH} $<TARGET_FILE_DIR:assimpexample>)
+
+add_custom_command(TARGET assimpexample POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                       ${GLEW_DLL_PATH} $<TARGET_FILE_DIR:assimpexample>)
+
+add_custom_command(TARGET assimpexample POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                       ${ASSIMP_DLL_PATH} $<TARGET_FILE_DIR:assimpexample>)
