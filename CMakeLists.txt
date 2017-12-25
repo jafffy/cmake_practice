@@ -21,6 +21,7 @@ include_directories(
     ${GLFW_INCLUDE_PATH}
     ${GLEW_INCLUDE_PATH}
     ${GLM_INCLUDE_PATH}
+    ${ASSIMP_INCLUDE_PATH}
 )
 
 add_executable(hello 
