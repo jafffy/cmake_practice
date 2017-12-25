@@ -24,6 +24,7 @@ include_directories(
     ${GLEW_INCLUDE_PATH}
     ${GLM_INCLUDE_PATH}
     ${ASSIMP_INCLUDE_PATH}
+    ${BOOST_INCLUDE_PATH}
 )
 
 add_executable(hello 
