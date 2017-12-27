@@ -114,6 +114,11 @@ int main()
 
     glfwWindowHint(GLFW_SAMPLES, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+#ifdef WIN32
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+#else
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+#endif
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
@@ -210,7 +215,7 @@ int main()
 
     glUseProgram(programID);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     glDisableVertexAttribArray(0);
     glUseProgram(0);
 

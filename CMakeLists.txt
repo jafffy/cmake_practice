@@ -22,8 +22,8 @@ endif(WIN32)
 
 set(BOOST_INCLUDE_PATH "" CACHE PATH "Boost")
 
-set(HELLO_HEADER_FILES )
-set(HELLO_SOURCE_FILES hello.cc)
+set(RESOURCES_PATH ${CMAKE_SOURCE_DIR}/resources)
+set(GRAPHICS_INCLUDE_PATH ${CMAKE_SOURCE_DIR}/include)
 
 include_directories(
     ${GLFW_INCLUDE_PATH}
@@ -31,56 +31,8 @@ include_directories(
     ${GLM_INCLUDE_PATH}
     ${ASSIMP_INCLUDE_PATH}
     ${BOOST_INCLUDE_PATH}
+
+    ${GRAPHICS_INCLUDE_PATH}
 )
 
-add_executable(hello 
-    ${HELLO_HEADER_FILES}
-    ${HELLO_SOURCE_FILES}
-)
-target_link_libraries(hello
-    ${OPENGL_LIBRARY}
-    ${GLFW_LIBRARY}
-    ${GLEW_LIBRARY}
-)
-set(REDTRIANGLE_HEADER_FILES )
-set(REDTRIANGLE_SOURCE_FILES redtriangle.cc)
-
-add_executable(redtriangle
-    ${REDTRIANGLE_HEADER_FILES}
-    ${REDTRIANGLE_SOURCE_FILES}
-)
-target_link_libraries(redtriangle
-    ${OPENGL_LIBRARY}
-    ${GLFW_LIBRARY}
-    ${GLEW_LIBRARY}
-)
-
-set(ASSIMPEXAMPLE_HEADER_FILES )
-set(ASSIMPEXAMPLE_SOURCE_FILES assimpexample.cc)
-
-add_executable(assimpexample
-    ${ASSIMPEXAMPLE_HEADER_FILES}
-    ${ASSIMPEXAMPLE_SOURCE_FILES}
-)
-target_link_libraries(assimpexample
-    ${OPENGL_LIBRARY}
-    ${GLFW_LIBRARY}
-    ${GLEW_LIBRARY}
-    ${ASSIMP_LIBRARY}
-)
-
-add_custom_command(TARGET assimpexample POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:assimpexample>/resources)
-
-add_custom_command(TARGET assimpexample POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                       ${GLFW_DLL_PATH} $<TARGET_FILE_DIR:assimpexample>)
-
-add_custom_command(TARGET assimpexample POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                       ${GLEW_DLL_PATH} $<TARGET_FILE_DIR:assimpexample>)
-
-add_custom_command(TARGET assimpexample POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                       ${ASSIMP_DLL_PATH} $<TARGET_FILE_DIR:assimpexample>)
+add_subdirectory(src)
