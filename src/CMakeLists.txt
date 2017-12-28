@@ -15,6 +15,7 @@ add_custom_command(TARGET assimpexample POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${RESOURCES_PATH} $<TARGET_FILE_DIR:assimpexample>/resources)
 
+if (WIN32)
 add_custom_command(TARGET assimpexample POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
                        ${GLFW_DLL_PATH} $<TARGET_FILE_DIR:assimpexample>)
@@ -26,3 +27,4 @@ add_custom_command(TARGET assimpexample POST_BUILD
 add_custom_command(TARGET assimpexample POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
                        ${ASSIMP_DLL_PATH} $<TARGET_FILE_DIR:assimpexample>)
+endif (WIN32)
